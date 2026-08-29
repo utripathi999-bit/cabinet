@@ -1,0 +1,429 @@
+/* ===========================================================
+   CABINET — design tokens
+   Concept: a single glass card floats above a soft, moody
+   gradient — a curiosity presented like an object under museum
+   glass. Dark, warm-accented, quietly luxurious.
+   =========================================================== */
+
+:root {
+  /* Surface + background */
+  --bg-base: #0a0a0f;
+  --text-primary: #f4f1ec;
+  --text-secondary: rgba(244, 241, 236, 0.66);
+  --text-tertiary: rgba(244, 241, 236, 0.42);
+
+  /* Glass */
+  --glass-bg-top: rgba(255, 255, 255, 0.09);
+  --glass-bg-bottom: rgba(255, 255, 255, 0.025);
+  --glass-border: rgba(255, 255, 255, 0.14);
+  --glass-highlight: rgba(255, 255, 255, 0.22);
+
+  /* Accent — warm champagne gold */
+  --accent: #e3b567;
+  --accent-strong: #f0c785;
+  --accent-soft: rgba(227, 181, 103, 0.16);
+  --accent-glow: rgba(227, 181, 103, 0.4);
+
+  /* Secondary accent — cool teal, used sparingly for the ambient glow */
+  --accent-cool: #4fb8c9;
+
+  /* Error */
+  --error: #ff8f79;
+
+  /* Layout */
+  --card-max-width: 640px;
+  --radius-lg: 28px;
+  --radius-md: 16px;
+  --radius-sm: 12px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body {
+  padding: 0;
+  margin: 0;
+}
+
+body {
+  /* Role tokens live here, not :root: they reference the *-fallback vars
+     that next/font sets via a class on <body>, and a custom property's
+     var() references only resolve using values visible at the element
+     where that property is declared — :root (<html>) can't see a variable
+     that only exists on a descendant. Swap these to point a role at your
+     own font; see public/fonts/README.md. */
+  --font-display: var(--font-display-fallback);
+  --font-label: var(--font-label-fallback);
+  --font-body: var(--font-body-fallback);
+
+  position: relative;
+  background-color: var(--bg-base);
+  background-image: radial-gradient(
+      900px circle at 12% -8%,
+      rgba(227, 181, 103, 0.16),
+      transparent 55%
+    ),
+    radial-gradient(1000px circle at 92% 8%, rgba(79, 184, 201, 0.13), transparent 55%),
+    radial-gradient(900px circle at 50% 105%, rgba(120, 90, 200, 0.14), transparent 60%);
+  background-attachment: fixed;
+  color: var(--text-primary);
+  font-family: var(--font-body);
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: clamp(24px, 6vw, 72px) 20px 40px;
+  overflow-x: hidden;
+}
+
+/* Fine grain over the gradient so it reads as glass, not a flat blend */
+body::before {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.05;
+  mix-blend-mode: overlay;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='140' height='140'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='2' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+a {
+  color: inherit;
+}
+
+/* ---------- Header / wordmark ---------- */
+
+.wordmark-block {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--card-max-width);
+  margin-bottom: clamp(28px, 5vw, 48px);
+  text-align: center;
+}
+
+.wordmark {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.8rem;
+  letter-spacing: 0.42em;
+  background: linear-gradient(100deg, var(--accent-strong), var(--text-primary) 60%, var(--accent-strong));
+  -webkit-background-clip: text;
+  background-clip: text;
+  color: transparent;
+  text-transform: uppercase;
+  margin: 0;
+}
+
+.tagline {
+  font-family: var(--font-label);
+  font-size: 0.75rem;
+  color: var(--text-tertiary);
+  margin: 8px 0 0;
+  letter-spacing: 0.1em;
+}
+
+/* ---------- The stack: ambient glow + the card itself ---------- */
+
+.stack {
+  position: relative;
+  z-index: 1;
+  width: 100%;
+  max-width: var(--card-max-width);
+}
+
+.stack::before {
+  content: "";
+  position: absolute;
+  inset: -60px;
+  z-index: 0;
+  background: radial-gradient(
+      circle at 30% 20%,
+      var(--accent-glow),
+      transparent 55%
+    ),
+    radial-gradient(circle at 80% 90%, rgba(79, 184, 201, 0.28), transparent 55%);
+  filter: blur(50px);
+  opacity: 0.55;
+  pointer-events: none;
+}
+
+.card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(165deg, var(--glass-bg-top), var(--glass-bg-bottom));
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(32px, 5vw, 52px) clamp(28px, 5vw, 48px) clamp(36px, 5vw, 48px);
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 var(--glass-highlight);
+  animation: card-rise 650ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
+@keyframes card-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px) scale(0.98);
+    filter: blur(8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+    filter: blur(0);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .card {
+    animation: none;
+  }
+}
+
+/* ---------- Card header: call number + card count ---------- */
+
+.card-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  letter-spacing: 0.06em;
+  margin-bottom: 22px;
+}
+
+.call-number {
+  color: var(--accent-strong);
+  font-weight: 600;
+}
+
+.card-count {
+  color: var(--text-tertiary);
+}
+
+/* ---------- Category tag ---------- */
+
+.category-tag {
+  display: inline-block;
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+  color: var(--accent-strong);
+  background: var(--accent-soft);
+  border: 1px solid rgba(227, 181, 103, 0.35);
+  border-radius: 999px;
+  padding: 5px 14px;
+  margin-bottom: 20px;
+}
+
+/* ---------- Title + description ---------- */
+
+.title {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: clamp(1.9rem, 4.4vw, 2.75rem);
+  line-height: 1.15;
+  letter-spacing: -0.01em;
+  color: var(--text-primary);
+  margin: 0 0 18px;
+}
+
+.description {
+  font-size: 1.05rem;
+  line-height: 1.75;
+  color: var(--text-secondary);
+  margin: 0;
+}
+
+/* ---------- Divider ---------- */
+
+.divider {
+  border: none;
+  height: 1px;
+  background: linear-gradient(
+    90deg,
+    transparent,
+    var(--glass-border) 15%,
+    var(--glass-border) 85%,
+    transparent
+  );
+  margin: 32px 0 24px;
+}
+
+/* ---------- Sources ---------- */
+
+.sources-label {
+  font-family: var(--font-label);
+  font-size: 0.7rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin: 0 0 12px;
+}
+
+.source-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.source-item a {
+  display: flex;
+  justify-content: space-between;
+  align-items: baseline;
+  gap: 12px;
+  text-decoration: none;
+  padding: 12px 14px;
+  margin: 0 -14px;
+  border-radius: var(--radius-sm);
+  border: 1px solid transparent;
+  background: transparent;
+  transition: transform 180ms ease, background-color 180ms ease,
+    border-color 180ms ease;
+}
+
+.source-item a:hover,
+.source-item a:focus-visible {
+  background: rgba(255, 255, 255, 0.055);
+  border-color: var(--glass-border);
+  transform: translateX(2px);
+}
+
+.source-item a:focus-visible {
+  outline: 2px solid var(--accent);
+  outline-offset: 2px;
+}
+
+.source-title {
+  font-weight: 600;
+  font-size: 0.95rem;
+  color: var(--text-primary);
+}
+
+.source-channel {
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+}
+
+.sources-empty {
+  font-size: 0.9rem;
+  color: var(--text-tertiary);
+  font-style: italic;
+  margin: 0;
+}
+
+/* ---------- Footer meta ---------- */
+
+.footer-meta {
+  position: relative;
+  z-index: 1;
+  margin-top: clamp(20px, 4vw, 32px);
+  text-align: center;
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  letter-spacing: 0.05em;
+  max-width: var(--card-max-width);
+}
+
+/* ---------- Loading state ---------- */
+
+.loading-card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(165deg, var(--glass-bg-top), var(--glass-bg-bottom));
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(32px, 5vw, 52px) clamp(28px, 5vw, 48px);
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 var(--glass-highlight);
+  text-align: center;
+}
+
+.loading-label {
+  font-family: var(--font-label);
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  color: var(--text-tertiary);
+}
+
+.loading-dots span {
+  display: inline-block;
+  width: 6px;
+  height: 6px;
+  margin: 0 3px;
+  border-radius: 50%;
+  background: var(--accent);
+  box-shadow: 0 0 10px var(--accent-glow);
+  animation: pulse 1.1s infinite ease-in-out;
+}
+
+.loading-dots span:nth-child(2) {
+  animation-delay: 0.15s;
+}
+.loading-dots span:nth-child(3) {
+  animation-delay: 0.3s;
+}
+
+@keyframes pulse {
+  0%,
+  80%,
+  100% {
+    opacity: 0.25;
+    transform: scale(0.85);
+  }
+  40% {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .loading-dots span {
+    animation: none;
+    opacity: 0.6;
+  }
+}
+
+/* ---------- Error state ---------- */
+
+.error-card {
+  position: relative;
+  z-index: 1;
+  background: linear-gradient(165deg, var(--glass-bg-top), var(--glass-bg-bottom));
+  backdrop-filter: blur(28px) saturate(160%);
+  border: 1px solid var(--glass-border);
+  border-radius: var(--radius-lg);
+  padding: clamp(28px, 5vw, 40px);
+  box-shadow: 0 30px 70px -24px rgba(0, 0, 0, 0.6),
+    inset 0 1px 0 var(--glass-highlight);
+}
+
+.error-title {
+  font-family: var(--font-label);
+  font-weight: 600;
+  font-size: 0.85rem;
+  letter-spacing: 0.06em;
+  color: var(--error);
+  text-transform: uppercase;
+  margin: 0 0 10px;
+}
+
+.error-body {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  margin: 0;
+  color: var(--text-secondary);
+}
