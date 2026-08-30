@@ -117,6 +117,46 @@ a {
   border-right: 1px solid var(--border);
 }
 
+.pane-topic--image {
+  background-image: linear-gradient(
+      to top,
+      rgba(10, 8, 6, 0.85),
+      rgba(10, 8, 6, 0.3) 55%,
+      rgba(10, 8, 6, 0.08) 100%
+    ),
+    var(--pane-image);
+  background-size: cover;
+  background-position: center;
+}
+
+/* Text needs to sit on top of a busy, colorful photo now, not the flat
+   canvas color — swap the palette for the on-image variants used
+   throughout this pane. */
+.pane-topic--image .card-header,
+.pane-topic--image .call-number,
+.pane-topic--image .card-count {
+  color: rgba(251, 251, 250, 0.82);
+}
+
+.pane-topic--image .category-tag {
+  color: #171717;
+  background: #f0c785;
+}
+
+.pane-topic--image .title {
+  color: #fbfbfa;
+}
+
+.pane-topic--image .share-button {
+  color: rgba(251, 251, 250, 0.9);
+  border-color: rgba(251, 251, 250, 0.35);
+}
+
+.pane-topic--image .share-button:hover {
+  border-color: rgba(251, 251, 250, 0.7);
+  color: #ffffff;
+}
+
 .pane-detail {
   flex: 1 1 auto;
 }

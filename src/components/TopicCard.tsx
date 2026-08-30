@@ -1,13 +1,29 @@
 import Link from "next/link";
-import type { TopicRecord } from "@/lib/types";
+import type { GeneratedImage, TopicRecord } from "@/lib/types";
 import { formatDisplayDate } from "@/lib/date";
 import { ShareButton } from "./ShareButton";
 
-export function TopicCard({ topic }: { topic: TopicRecord }) {
+export function TopicCard({
+  topic,
+  image,
+}: {
+  topic: TopicRecord;
+  image?: GeneratedImage | null;
+}) {
+  // CSS composites the legibility scrim + this image together (see
+  // .pane-topic--image) — passed as a custom property rather than a
+  // literal backgroundImage so the scrim gradient stays in one place.
+  const paneStyle = image
+    ? ({ "--pane-image": `url(data:${image.mimeType};base64,${image.base64})` } as React.CSSProperties)
+    : undefined;
+
   return (
     <>
       <div className="split">
-        <section className="pane pane-topic">
+        <section
+          className={`pane pane-topic${image ? " pane-topic--image" : ""}`}
+          style={paneStyle}
+        >
           <div className="card-header">
             <span>
               <span className="call-number">{topic.callNumber}</span>

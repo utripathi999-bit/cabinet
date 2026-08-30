@@ -1,5 +1,5 @@
 import { notFound } from "next/navigation";
-import { getCachedTopic } from "@/lib/storage";
+import { getCachedTopic, getTopicImage } from "@/lib/storage";
 import { TopicCard } from "@/components/TopicCard";
 
 export const dynamic = "force-dynamic";
@@ -26,6 +26,7 @@ export default async function ArchiveDayPage({
   const { date } = await params;
   const topic = await getCachedTopic(date);
   if (!topic) notFound();
+  const image = await getTopicImage(date);
 
   return (
     <main>
@@ -37,7 +38,7 @@ export default async function ArchiveDayPage({
           <a href="/archive">back to archive</a>
         </p>
       </div>
-      <TopicCard topic={topic} />
+      <TopicCard topic={topic} image={image} />
     </main>
   );
 }

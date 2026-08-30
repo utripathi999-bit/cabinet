@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { Suspense } from "react";
 import { getOrGenerateTopic } from "@/lib/topic";
+import { getTopicImage } from "@/lib/storage";
 import { todayIST } from "@/lib/date";
 import { TopicCard } from "@/components/TopicCard";
 import { LoadingCard } from "@/components/LoadingCard";
@@ -13,7 +14,8 @@ export const dynamic = "force-dynamic";
 async function TodaysCard() {
   try {
     const topic = await getOrGenerateTopic(todayIST());
-    return <TopicCard topic={topic} />;
+    const image = await getTopicImage(topic.date);
+    return <TopicCard topic={topic} image={image} />;
   } catch (err) {
     console.error("Failed to render today's card", err);
     return <ErrorCard />;
