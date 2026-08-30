@@ -94,8 +94,12 @@ export async function generateTopicDraft(
         ],
         generationConfig: {
           temperature: 1,
-          maxOutputTokens: 700,
+          maxOutputTokens: 2048,
           responseMimeType: "application/json",
+          // Gemini 3.x models think before answering and can't fully
+          // disable it on Flash — "low" keeps that from eating the whole
+          // token budget before the JSON answer itself gets written.
+          thinkingConfig: { thinkingLevel: "low" },
         },
       }),
     }
