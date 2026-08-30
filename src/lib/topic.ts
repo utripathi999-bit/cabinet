@@ -1,4 +1,5 @@
-import { generateTopicDraft, embedText, generateTopicImage, type AvoidEntry } from "./gemini";
+import { generateTopicDraft, embedText, type AvoidEntry } from "./gemini";
+import { generateTopicImage } from "./pollinations";
 import { fetchSources } from "./youtube";
 import {
   acquireGenerationLock,

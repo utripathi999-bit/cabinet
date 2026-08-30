@@ -1,4 +1,4 @@
-import type { GeneratedImage, GeneratedTopicDraft } from "./types";
+import type { GeneratedTopicDraft } from "./types";
 
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
@@ -8,13 +8,10 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 // hit exactly that: gemini-2.5-flash and text-embedding-004 were both
 // retired for new keys after this was first written) — if either of these
 // starts failing, the error response names the current replacement model.
+// (Image generation moved to pollinations.ts — every Gemini image model
+// came back with a hard 0 free-tier quota for this key, not just "used up.")
 const GENERATION_MODEL = "gemini-3.6-flash";
 const EMBEDDING_MODEL = "gemini-embedding-001";
-// "-lite-image" came back with a hard 0 free-tier quota for this key
-// (RESOURCE_EXHAUSTED, limit: 0 — not "used up," never granted). Trying
-// the non-lite variant next; Pro-tier image models are confirmed
-// paid-only across the board, so not worth trying.
-const IMAGE_MODEL = "gemini-3.1-flash-image-preview";
 
 const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is seven domains: Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology & Philosophy, and History. Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out would want to fall down a rabbit hole on, not a dry textbook entry.
 
@@ -164,57 +161,4 @@ export async function embedText(text: string): Promise<number[]> {
 
   const data = await response.json();
   return data.embedding?.values ?? [];
-}
-
-/**
- * Generates a colorful, cartoonish illustration for a topic. Best-effort:
- * callers should treat a null return (no key, or the call fails for any
- * reason) as "no image today" rather than failing the whole card — this
- * is a nice-to-have on top of the text, never a blocker for it.
- */
-export async function generateTopicImage(
-  title: string,
-  category: string
-): Promise<GeneratedImage | null> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) return null;
-
-  const prompt = `Create a colorful, playful, cartoon-style editorial illustration representing this topic: "${title}" (a ${category} topic). Flat-illustration style, bold vibrant shapes and colors, whimsical and inviting, like a modern editorial magazine spot illustration. Absolutely no text, no words, no letters, no numbers, no logos anywhere in the image — pure illustration only. No photorealism.`;
-
-  try {
-    const response = await fetch(
-      `${GEMINI_API_BASE}/models/${IMAGE_MODEL}:generateContent?key=${apiKey}`,
-      {
-        method: "POST",
-        headers: { "content-type": "application/json" },
-        body: JSON.stringify({
-          contents: [{ role: "user", parts: [{ text: prompt }] }],
-          generationConfig: { responseModalities: ["IMAGE"] },
-        }),
-      }
-    );
-
-    if (!response.ok) {
-      const body = await response.text().catch(() => "");
-      console.warn(`[cabinet] Image generation failed: ${response.status} ${body}`);
-      return null;
-    }
-
-    const data = await response.json();
-    const parts: Array<{ inlineData?: { mimeType: string; data: string } }> =
-      data.candidates?.[0]?.content?.parts ?? [];
-    const imagePart = parts.find((p) => p.inlineData);
-    if (!imagePart?.inlineData) {
-      console.warn("[cabinet] Image generation returned no image data");
-      return null;
-    }
-
-    return {
-      base64: imagePart.inlineData.data,
-      mimeType: imagePart.inlineData.mimeType,
-    };
-  } catch (err) {
-    console.warn("[cabinet] Image generation threw", err);
-    return null;
-  }
 }
