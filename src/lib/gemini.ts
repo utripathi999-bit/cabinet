@@ -10,7 +10,11 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 // starts failing, the error response names the current replacement model.
 const GENERATION_MODEL = "gemini-3.6-flash";
 const EMBEDDING_MODEL = "gemini-embedding-001";
-const IMAGE_MODEL = "gemini-3.1-flash-lite-image"; // free-tier image model
+// "-lite-image" came back with a hard 0 free-tier quota for this key
+// (RESOURCE_EXHAUSTED, limit: 0 — not "used up," never granted). Trying
+// the non-lite variant next; Pro-tier image models are confirmed
+// paid-only across the board, so not worth trying.
+const IMAGE_MODEL = "gemini-3.1-flash-image-preview";
 
 const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is seven domains: Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology & Philosophy, and History. Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out would want to fall down a rabbit hole on, not a dry textbook entry.
 
