@@ -1,8 +1,9 @@
-import { generateTopicDraft, embedText, type AvoidEntry } from "./gemini";
+import { generateTopicDraft, embedText, generateTopicImage, type AvoidEntry } from "./gemini";
 import { fetchSources } from "./youtube";
 import {
   acquireGenerationLock,
   cacheTopic,
+  cacheTopicImage,
   clearLastError,
   getCachedTopic,
   getRecentTopics,
@@ -103,7 +104,12 @@ async function draftDistinctTopic(
 async function generateAndCache(date: string): Promise<TopicRecord> {
   const history = await getRecentTopics();
   const { draft, embedding } = await draftDistinctTopic(history);
-  const sources = await fetchSources(draft.searchQuery);
+  // Sources and the illustration are independent of each other — run them
+  // concurrently rather than adding their latencies together.
+  const [sources, image] = await Promise.all([
+    fetchSources(draft.searchQuery),
+    generateTopicImage(draft.title, draft.category),
+  ]);
   const cardNumber = await nextCardNumber();
 
   const record: TopicRecord = {
@@ -119,33 +125,11 @@ async function generateAndCache(date: string): Promise<TopicRecord> {
 
   await cacheTopic(record);
   await pushRecentTopic({ title: draft.title, category: draft.category, embedding, date });
+  // Illustration is a nice-to-have, not part of the core card — a failed
+  // image generation (already logged inside generateTopicImage) shouldn't
+  // stop the actual topic from being cached.
+  if (image) await cacheTopicImage(date, image);
   return record;
-}
-
-/**
- * Ranks past topics by similarity to `currentTitle`'s own embedding
- * (looked up from history, since the public TopicRecord doesn't carry
- * its embedding) and returns the closest few, for a "related" section.
- * Returns [] if the current topic has no history entry (shouldn't
- * normally happen — only for topics generated before this existed) or
- * on demo-mode empty embeddings.
- */
-export async function getRelatedTopics(
-  currentTitle: string,
-  limit = 3
-): Promise<Array<{ title: string; category: string; date: string }>> {
-  const history = await getRecentTopics();
-  const current = history.find((h) => h.title === currentTitle);
-  if (!current || current.embedding.length === 0) return [];
-
-  return history
-    // `date` is missing on history entries pushed before this field
-    // existed — skip those rather than link to /archive/undefined.
-    .filter((h) => h.title !== currentTitle && h.embedding.length > 0 && h.date)
-    .map((h) => ({ ...h, similarity: cosineSimilarity(current.embedding, h.embedding) }))
-    .sort((a, b) => b.similarity - a.similarity)
-    .slice(0, limit)
-    .map(({ title, category, date }) => ({ title, category, date }));
 }
 
 /**

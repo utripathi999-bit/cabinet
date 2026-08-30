@@ -1,6 +1,5 @@
 import { notFound } from "next/navigation";
 import { getCachedTopic } from "@/lib/storage";
-import { getRelatedTopics } from "@/lib/topic";
 import { TopicCard } from "@/components/TopicCard";
 
 export const dynamic = "force-dynamic";
@@ -28,8 +27,6 @@ export default async function ArchiveDayPage({
   const topic = await getCachedTopic(date);
   if (!topic) notFound();
 
-  const related = await getRelatedTopics(topic.title);
-
   return (
     <main>
       <div className="wordmark-block">
@@ -40,7 +37,7 @@ export default async function ArchiveDayPage({
           <a href="/archive">back to archive</a>
         </p>
       </div>
-      <TopicCard topic={topic} related={related} />
+      <TopicCard topic={topic} />
     </main>
   );
 }

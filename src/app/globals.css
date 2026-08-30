@@ -68,19 +68,20 @@ a {
 .wordmark-block {
   flex: 0 0 auto;
   display: flex;
-  align-items: baseline;
-  justify-content: space-between;
-  padding: 18px clamp(24px, 4vw, 48px);
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 16px clamp(24px, 4vw, 48px);
   border-bottom: 1px solid var(--border);
+  text-align: center;
 }
 
 .wordmark {
-  font-family: var(--font-label);
-  font-weight: 500;
-  font-size: 0.8rem;
-  letter-spacing: 0.16em;
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: 1.5rem;
+  letter-spacing: -0.01em;
   color: var(--text-primary);
-  text-transform: uppercase;
   margin: 0;
 }
 
@@ -345,32 +346,6 @@ a {
   line-height: 1.6;
   margin: 0;
   color: var(--text-secondary);
-}
-
-/* ---------- Related topics (in the topic pane) ---------- */
-
-.related {
-  margin-top: clamp(20px, 3vw, 32px);
-}
-
-.related-list {
-  list-style: none;
-  margin: 0;
-  padding: 0;
-  display: flex;
-  flex-direction: column;
-  gap: 6px;
-}
-
-.related-list a {
-  font-size: 0.82rem;
-  color: var(--text-secondary);
-  text-decoration: none;
-}
-
-.related-list a:hover,
-.related-list a:focus-visible {
-  color: var(--tag-text);
 }
 
 /* ---------- Share button ---------- */

@@ -1,4 +1,4 @@
-import type { GeneratedTopicDraft } from "./types";
+import type { GeneratedImage, GeneratedTopicDraft } from "./types";
 
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
@@ -10,6 +10,7 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 // starts failing, the error response names the current replacement model.
 const GENERATION_MODEL = "gemini-3.6-flash";
 const EMBEDDING_MODEL = "gemini-embedding-001";
+const IMAGE_MODEL = "gemini-3.1-flash-lite-image"; // free-tier image model
 
 const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is seven domains: Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology & Philosophy, and History. Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out would want to fall down a rabbit hole on, not a dry textbook entry.
 
@@ -18,7 +19,7 @@ For each request, invent ONE topic and return ONLY a single JSON object matching
 {
   "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category). Do NOT use an \"X and Y\" construction (two phrases joined by 'and') — this is a hard rule, not a preference. Use a plain proper noun (\"The Antikythera Mechanism\"), a single striking phrase (\"The Halting Problem\"), a possessive (\"Dieter Rams' Ten Principles\"), or another non-paired form instead.",
   "category": "string, 1-2 words naming which of the seven domains this is, e.g. Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology, Philosophy, History",
-  "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background — define any term you use, open with the most interesting or surprising angle, end on why it's worth an hour of someone's time",
+  "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background. Open on a concrete, vivid detail or scene — a specific moment, number, or image — never a definition or a throat-clearing setup sentence. Include at least one genuinely surprising, specific fact (a number, a name, a date, a consequence) that most people wouldn't already know. Define any term you use inline, in passing, without slowing down. End on why it's worth an hour of someone's time — the real payoff, not a generic 'and that's fascinating' close.",
   "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic"
 }
 
@@ -159,4 +160,57 @@ export async function embedText(text: string): Promise<number[]> {
 
   const data = await response.json();
   return data.embedding?.values ?? [];
+}
+
+/**
+ * Generates a colorful, cartoonish illustration for a topic. Best-effort:
+ * callers should treat a null return (no key, or the call fails for any
+ * reason) as "no image today" rather than failing the whole card — this
+ * is a nice-to-have on top of the text, never a blocker for it.
+ */
+export async function generateTopicImage(
+  title: string,
+  category: string
+): Promise<GeneratedImage | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  const prompt = `Create a colorful, playful, cartoon-style editorial illustration representing this topic: "${title}" (a ${category} topic). Flat-illustration style, bold vibrant shapes and colors, whimsical and inviting, like a modern editorial magazine spot illustration. Absolutely no text, no words, no letters, no numbers, no logos anywhere in the image — pure illustration only. No photorealism.`;
+
+  try {
+    const response = await fetch(
+      `${GEMINI_API_BASE}/models/${IMAGE_MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          contents: [{ role: "user", parts: [{ text: prompt }] }],
+          generationConfig: { responseModalities: ["IMAGE"] },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      console.warn(`[cabinet] Image generation failed: ${response.status} ${body}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const parts: Array<{ inlineData?: { mimeType: string; data: string } }> =
+      data.candidates?.[0]?.content?.parts ?? [];
+    const imagePart = parts.find((p) => p.inlineData);
+    if (!imagePart?.inlineData) {
+      console.warn("[cabinet] Image generation returned no image data");
+      return null;
+    }
+
+    return {
+      base64: imagePart.inlineData.data,
+      mimeType: imagePart.inlineData.mimeType,
+    };
+  } catch (err) {
+    console.warn("[cabinet] Image generation threw", err);
+    return null;
+  }
 }

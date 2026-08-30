@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import type { LastError, RecentTopic, TopicRecord } from "./types";
+import type { GeneratedImage, LastError, RecentTopic, TopicRecord } from "./types";
 
 const HISTORY_KEY = "cabinet:history"; // list of recent topics (title, category, embedding, date), newest first
 const HISTORY_MAX = 500; // how many past topics we remember, to check for repeats
@@ -12,6 +12,10 @@ function topicKey(date: string) {
 
 function lockKey(date: string) {
   return `cabinet:lock:${date}`;
+}
+
+function imageKey(date: string) {
+  return `cabinet:image:${date}`;
 }
 
 // Vercel's Upstash Marketplace integration injects these automatically once
@@ -32,6 +36,7 @@ if (!redis) {
 
 const mem = {
   topics: new Map<string, TopicRecord>(),
+  images: new Map<string, GeneratedImage>(),
   history: [] as RecentTopic[],
   counter: 0,
   locks: new Set<string>(),
@@ -52,6 +57,26 @@ export async function cacheTopic(topic: TopicRecord): Promise<void> {
   // Keep cards for 45 days — plenty for the "today" cache, cheap to keep a
   // short backlog, and storage doesn't grow forever.
   await redis.set(topicKey(topic.date), topic, { ex: 60 * 60 * 24 * 45 });
+}
+
+/**
+ * The topic's generated illustration, if one exists — kept as a separate
+ * key from the topic record itself (base64 image data would otherwise
+ * bloat /api/topic's JSON response for no reason, since only
+ * opengraph-image.tsx needs it).
+ */
+export async function getTopicImage(date: string): Promise<GeneratedImage | null> {
+  if (!redis) return mem.images.get(imageKey(date)) ?? null;
+  return (await redis.get<GeneratedImage>(imageKey(date))) ?? null;
+}
+
+export async function cacheTopicImage(date: string, image: GeneratedImage): Promise<void> {
+  if (!redis) {
+    mem.images.set(imageKey(date), image);
+    return;
+  }
+  // Same 45-day retention as the topic text itself.
+  await redis.set(imageKey(date), image, { ex: 60 * 60 * 24 * 45 });
 }
 
 // @upstash/redis auto-serializes/deserializes non-string values, so

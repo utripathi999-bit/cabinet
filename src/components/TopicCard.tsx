@@ -3,19 +3,7 @@ import type { TopicRecord } from "@/lib/types";
 import { formatDisplayDate } from "@/lib/date";
 import { ShareButton } from "./ShareButton";
 
-interface RelatedTopic {
-  title: string;
-  category: string;
-  date: string;
-}
-
-export function TopicCard({
-  topic,
-  related = [],
-}: {
-  topic: TopicRecord;
-  related?: RelatedTopic[];
-}) {
+export function TopicCard({ topic }: { topic: TopicRecord }) {
   return (
     <>
       <div className="split">
@@ -29,19 +17,6 @@ export function TopicCard({
           </div>
           <span className="category-tag">{topic.category}</span>
           <h1 className="title">{topic.title}</h1>
-
-          {related.length > 0 && (
-            <div className="related">
-              <p className="sources-label">Related</p>
-              <ul className="related-list">
-                {related.map((r) => (
-                  <li key={r.date}>
-                    <Link href={`/archive/${r.date}`}>{r.title}</Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-          )}
         </section>
 
         <section className="pane pane-detail">
