@@ -4,7 +4,7 @@
  * random visitors out of /admin), the same bar the cron endpoint already
  * clears. Not meant to scale beyond that.
  */
-export function isValidAdminKey(key: string | null | undefined): boolean {
+export function isValidAdminKey(key: string | null | undefined): key is string {
   const secret = process.env.CRON_SECRET;
   return Boolean(secret) && key === secret;
 }

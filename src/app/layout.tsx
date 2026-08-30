@@ -28,7 +28,16 @@ const body = Instrument_Sans({
   fallback: ["-apple-system", "Segoe UI", "sans-serif"],
 });
 
+// Needed so relative URLs (the OG image route, in particular) resolve to
+// an absolute URL in social-share previews rather than defaulting to
+// localhost. Vercel injects VERCEL_PROJECT_PRODUCTION_URL automatically —
+// nothing to configure by hand.
+const siteUrl = process.env.VERCEL_PROJECT_PRODUCTION_URL
+  ? `https://${process.env.VERCEL_PROJECT_PRODUCTION_URL}`
+  : "http://localhost:3000";
+
 export const metadata: Metadata = {
+  metadataBase: new URL(siteUrl),
   title: "Cabinet — one curiosity a day",
   description:
     "A fresh, niche topic pulled from an infinite drawer every day, with real sources to start your research.",
