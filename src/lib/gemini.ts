@@ -16,7 +16,7 @@ const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one use
 For each request, invent ONE topic and return ONLY a single JSON object matching exactly this shape:
 
 {
-  "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category)",
+  "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category). Vary the shape day to day — don't default to the same 'X and Y' template every time. Mix in plain proper nouns (\"The Antikythera Mechanism\"), single striking phrases (\"The Halting Problem\"), and other forms, not just paired constructions.",
   "category": "string, 1-2 words naming which of the seven domains this is, e.g. Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology, Philosophy, History",
   "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background — define any term you use, open with the most interesting or surprising angle, end on why it's worth an hour of someone's time",
   "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic"
@@ -27,6 +27,7 @@ Rules:
 - Never repeat or closely rephrase anything in the "avoid" list you're given — including the same topic in different words.
 - A shared broad domain is NOT itself a duplicate. Distinct subjects, or genuine subtopics/deep-dives within a domain already touched on, are welcome even when related — e.g. Typography, the Printing Press, Calligraphy, and UI Design are four acceptable topics despite the overlap between them.
 - Rotate across the seven domains — don't cluster on the same one two days running.
+- Rotate title shapes too. If the "avoid" list shows a run of "X and Y"-style titles, deliberately break the pattern with something structurally different.
 - Write the description in plain, warm, direct prose. No listicle language, no "In this fascinating topic...", no rhetorical questions as a crutch.
 - Return raw JSON only.`;
 
