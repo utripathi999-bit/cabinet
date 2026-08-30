@@ -1,27 +1,27 @@
 import type { Metadata } from "next";
-import { Playfair_Display, Space_Grotesk, Manrope } from "next/font/google";
+import { Newsreader, JetBrains_Mono, Instrument_Sans } from "next/font/google";
 import "./globals.css";
 
 // Placeholder fonts so the site looks finished out of the box. Swap these
 // for your own paid fonts by following public/fonts/README.md — you'll
 // replace the CSS variables below with @font-face declarations, nothing
 // else in the codebase needs to change.
-const display = Playfair_Display({
+const display = Newsreader({
   subsets: ["latin"],
   variable: "--font-display-fallback",
-  weight: ["500", "600", "700"],
+  weight: ["500", "600"],
   style: ["normal", "italic"],
   fallback: ["Georgia", "Times New Roman", "serif"],
 });
 
-const label = Space_Grotesk({
+const label = JetBrains_Mono({
   subsets: ["latin"],
   variable: "--font-label-fallback",
-  weight: ["400", "500", "600"],
-  fallback: ["Segoe UI", "sans-serif"],
+  weight: ["400", "500"],
+  fallback: ["SF Mono", "Consolas", "monospace"],
 });
 
-const body = Manrope({
+const body = Instrument_Sans({
   subsets: ["latin"],
   variable: "--font-body-fallback",
   weight: ["400", "500", "600"],
