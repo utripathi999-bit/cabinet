@@ -1,5 +1,6 @@
+import Link from "next/link";
 import { Suspense } from "react";
-import { getOrGenerateTopic } from "@/lib/topic";
+import { getOrGenerateTopic, getRelatedTopics } from "@/lib/topic";
 import { todayIST } from "@/lib/date";
 import { TopicCard } from "@/components/TopicCard";
 import { LoadingCard } from "@/components/LoadingCard";
@@ -12,7 +13,8 @@ export const dynamic = "force-dynamic";
 async function TodaysCard() {
   try {
     const topic = await getOrGenerateTopic(todayIST());
-    return <TopicCard topic={topic} />;
+    const related = await getRelatedTopics(topic.title);
+    return <TopicCard topic={topic} related={related} />;
   } catch (err) {
     console.error("Failed to render today's card", err);
     return <ErrorCard />;
@@ -24,7 +26,9 @@ export default function Home() {
     <main>
       <div className="wordmark-block">
         <p className="wordmark">Cabinet</p>
-        <p className="tagline">one curiosity a day</p>
+        <p className="tagline">
+          one curiosity a day · <Link href="/archive">archive</Link>
+        </p>
       </div>
 
       <Suspense fallback={<LoadingCard />}>

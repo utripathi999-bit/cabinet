@@ -1,9 +1,10 @@
 import { Redis } from "@upstash/redis";
-import type { RecentTopic, TopicRecord } from "./types";
+import type { LastError, RecentTopic, TopicRecord } from "./types";
 
-const HISTORY_KEY = "cabinet:history"; // list of recent topics (title, category, embedding), newest first
+const HISTORY_KEY = "cabinet:history"; // list of recent topics (title, category, embedding, date), newest first
 const HISTORY_MAX = 500; // how many past topics we remember, to check for repeats
 const COUNTER_KEY = "cabinet:card-count";
+const LAST_ERROR_KEY = "cabinet:last-error";
 
 function topicKey(date: string) {
   return `cabinet:topic:${date}`;
@@ -34,6 +35,7 @@ const mem = {
   history: [] as RecentTopic[],
   counter: 0,
   locks: new Set<string>(),
+  lastError: null as LastError | null,
 };
 
 export async function getCachedTopic(date: string): Promise<TopicRecord | null> {
@@ -95,4 +97,33 @@ export async function releaseGenerationLock(date: string): Promise<void> {
     return;
   }
   await redis.del(lockKey(date));
+}
+
+/**
+ * The most recent generation failure, if the last attempt (cron or
+ * on-demand) errored — cleared on the next success. This is what the
+ * admin page shows instead of a proactive alert (email/webhook): for
+ * something that runs once a day, checking a status page covers it
+ * without needing another account.
+ */
+export async function getLastError(): Promise<LastError | null> {
+  if (!redis) return mem.lastError;
+  return (await redis.get<LastError>(LAST_ERROR_KEY)) ?? null;
+}
+
+export async function setLastError(message: string): Promise<void> {
+  const entry: LastError = { message, at: new Date().toISOString() };
+  if (!redis) {
+    mem.lastError = entry;
+    return;
+  }
+  await redis.set(LAST_ERROR_KEY, entry);
+}
+
+export async function clearLastError(): Promise<void> {
+  if (!redis) {
+    mem.lastError = null;
+    return;
+  }
+  await redis.del(LAST_ERROR_KEY);
 }

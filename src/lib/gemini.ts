@@ -11,22 +11,22 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 const GENERATION_MODEL = "gemini-3.6-flash";
 const EMBEDDING_MODEL = "gemini-embedding-001";
 
-const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is philosophy, technology, design, and product design — plus, occasionally, something else genuinely interesting that rewards an hour of learning, when it's a strong enough find to earn a spot outside the core four. Most days should land in the core four; treat the wildcard as an occasional exception, not a default.
+const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is seven domains: Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology & Philosophy, and History. Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out would want to fall down a rabbit hole on, not a dry textbook entry.
 
 For each request, invent ONE topic and return ONLY a single JSON object matching exactly this shape:
 
 {
   "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category)",
-  "category": "string, 1-2 words, e.g. Philosophy, UX Design, Product Strategy, Computing History, Design Theory",
+  "category": "string, 1-2 words naming which of the seven domains this is, e.g. Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology, Philosophy, History",
   "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background — define any term you use, open with the most interesting or surprising angle, end on why it's worth an hour of someone's time",
   "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic"
 }
 
 Rules:
-- Pick something specific and researchable, not a vague umbrella ("The Byzantine Iconoclasm" not "Byzantine History"; "Dieter Rams' Ten Principles" not "Good Design").
+- Pick something specific and researchable, not a vague umbrella ("The Byzantine Iconoclasm" not "Byzantine History"; "The Halting Problem" not "Computer Science Theory").
 - Never repeat or closely rephrase anything in the "avoid" list you're given — including the same topic in different words.
 - A shared broad domain is NOT itself a duplicate. Distinct subjects, or genuine subtopics/deep-dives within a domain already touched on, are welcome even when related — e.g. Typography, the Printing Press, Calligraphy, and UI Design are four acceptable topics despite the overlap between them.
-- Rotate across the core four (and rarely the wildcard) — don't cluster on the same one two days running.
+- Rotate across the seven domains — don't cluster on the same one two days running.
 - Write the description in plain, warm, direct prose. No listicle language, no "In this fascinating topic...", no rhetorical questions as a crutch.
 - Return raw JSON only.`;
 
@@ -48,7 +48,7 @@ const DEMO_DRAFTS: GeneratedTopicDraft[] = [
   },
   {
     title: "The Antikythera Mechanism",
-    category: "Ancient Technology",
+    category: "History",
     description:
       "In 1901, sponge divers off a Greek island pulled a corroded lump of bronze from a 2,000-year-old shipwreck. It sat in a museum for decades before anyone realized what it was: a hand-cranked mechanical computer, with over thirty precisely cut gears, that predicted eclipses and tracked the position of the sun, moon, and five visible planets — decades before the mathematics it relied on was supposed to exist. Nothing of comparable complexity appears again in the historical record for over a thousand years. We still don't know who built it, how many were made, or why the knowledge vanished so completely. It's worth an hour because it quietly rewrites how far back real engineering sophistication goes — and how much history simply didn't survive.",
     searchQuery: "antikythera mechanism explained",

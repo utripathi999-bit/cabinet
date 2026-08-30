@@ -347,6 +347,162 @@ a {
   color: var(--text-secondary);
 }
 
+/* ---------- Related topics (in the topic pane) ---------- */
+
+.related {
+  margin-top: clamp(20px, 3vw, 32px);
+}
+
+.related-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.related-list a {
+  font-size: 0.82rem;
+  color: var(--text-secondary);
+  text-decoration: none;
+}
+
+.related-list a:hover,
+.related-list a:focus-visible {
+  color: var(--tag-text);
+}
+
+/* ---------- Share button ---------- */
+
+.share-button {
+  font-family: var(--font-label);
+  font-size: 0.68rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: var(--text-secondary);
+  background: transparent;
+  border: 1px solid var(--border);
+  border-radius: 6px;
+  padding: 5px 12px;
+  cursor: pointer;
+  transition: border-color 150ms ease, color 150ms ease;
+}
+
+.share-button:hover {
+  border-color: var(--text-tertiary);
+  color: var(--text-primary);
+}
+
+.share-button:active {
+  transform: scale(0.98);
+}
+
+/* ---------- Primary buttons (admin) ---------- */
+
+.admin-button {
+  font-family: var(--font-body);
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #ffffff;
+  background: #111111;
+  border: none;
+  border-radius: 6px;
+  padding: 11px 22px;
+  cursor: pointer;
+  transition: background-color 150ms ease;
+}
+
+.admin-button:hover {
+  background: #333333;
+}
+
+.admin-button:active {
+  transform: scale(0.98);
+}
+
+/* ---------- Admin & archive pages: normal document pages,
+   not the homepage's fixed no-scroll split view. ---------- */
+
+body:has(.archive-page),
+body:has(.admin-page) {
+  overflow: auto;
+  height: auto;
+  min-height: 100vh;
+}
+
+main.archive-page,
+main.admin-page {
+  height: auto;
+  overflow: visible;
+}
+
+.admin-body,
+.archive-body {
+  max-width: 640px;
+  margin: 0 auto;
+  padding: clamp(28px, 5vw, 48px) clamp(24px, 4vw, 48px) 64px;
+}
+
+.admin-section {
+  padding: 8px 0;
+}
+
+.admin-meta {
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  margin: 6px 0 0;
+}
+
+.admin-error {
+  background: var(--error-bg);
+  border-radius: var(--radius);
+  padding: 16px 20px;
+}
+
+.admin-form {
+  margin-top: 8px;
+}
+
+.archive-list {
+  list-style: none;
+  margin: 0;
+  padding: 0;
+}
+
+.archive-item a {
+  display: flex;
+  align-items: baseline;
+  gap: 16px;
+  padding: 16px 0;
+  border-bottom: 1px solid var(--border);
+  text-decoration: none;
+  color: var(--text-primary);
+}
+
+.archive-item:first-child a {
+  border-top: 1px solid var(--border);
+}
+
+.archive-item a:hover,
+.archive-item a:focus-visible {
+  color: var(--tag-text);
+}
+
+.archive-date {
+  font-family: var(--font-label);
+  font-size: 0.72rem;
+  color: var(--text-tertiary);
+  white-space: nowrap;
+  flex: 0 0 auto;
+}
+
+.archive-title {
+  font-size: 0.94rem;
+  font-weight: 500;
+}
+
 /* ---------- Small viewports: stack instead of forcing a
    cramped two-column layout, and allow scrolling as a
    pragmatic fallback. ---------- */

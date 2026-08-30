@@ -1,17 +1,47 @@
+import Link from "next/link";
 import type { TopicRecord } from "@/lib/types";
 import { formatDisplayDate } from "@/lib/date";
+import { ShareButton } from "./ShareButton";
 
-export function TopicCard({ topic }: { topic: TopicRecord }) {
+interface RelatedTopic {
+  title: string;
+  category: string;
+  date: string;
+}
+
+export function TopicCard({
+  topic,
+  related = [],
+}: {
+  topic: TopicRecord;
+  related?: RelatedTopic[];
+}) {
   return (
     <>
       <div className="split">
         <section className="pane pane-topic">
           <div className="card-header">
-            <span className="call-number">{topic.callNumber}</span>
-            <span className="card-count">Card No. {topic.cardNumber}</span>
+            <span>
+              <span className="call-number">{topic.callNumber}</span>
+              <span className="card-count"> · Card No. {topic.cardNumber}</span>
+            </span>
+            <ShareButton title={topic.title} />
           </div>
           <span className="category-tag">{topic.category}</span>
           <h1 className="title">{topic.title}</h1>
+
+          {related.length > 0 && (
+            <div className="related">
+              <p className="sources-label">Related</p>
+              <ul className="related-list">
+                {related.map((r) => (
+                  <li key={r.date}>
+                    <Link href={`/archive/${r.date}`}>{r.title}</Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
         </section>
 
         <section className="pane pane-detail">
@@ -43,7 +73,7 @@ export function TopicCard({ topic }: { topic: TopicRecord }) {
 
       <p className="footer-meta">
         {formatDisplayDate(topic.date)} · a new card is pulled every midnight
-        IST
+        IST · <Link href="/archive">archive</Link>
       </p>
     </>
   );

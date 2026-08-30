@@ -3,11 +3,13 @@ import { fetchSources } from "./youtube";
 import {
   acquireGenerationLock,
   cacheTopic,
+  clearLastError,
   getCachedTopic,
   getRecentTopics,
   nextCardNumber,
   pushRecentTopic,
   releaseGenerationLock,
+  setLastError,
 } from "./storage";
 import type { GeneratedTopicDraft, RecentTopic, TopicRecord } from "./types";
 
@@ -116,8 +118,43 @@ async function generateAndCache(date: string): Promise<TopicRecord> {
   };
 
   await cacheTopic(record);
-  await pushRecentTopic({ title: draft.title, category: draft.category, embedding });
+  await pushRecentTopic({ title: draft.title, category: draft.category, embedding, date });
   return record;
+}
+
+/**
+ * Ranks past topics by similarity to `currentTitle`'s own embedding
+ * (looked up from history, since the public TopicRecord doesn't carry
+ * its embedding) and returns the closest few, for a "related" section.
+ * Returns [] if the current topic has no history entry (shouldn't
+ * normally happen — only for topics generated before this existed) or
+ * on demo-mode empty embeddings.
+ */
+export async function getRelatedTopics(
+  currentTitle: string,
+  limit = 3
+): Promise<Array<{ title: string; category: string; date: string }>> {
+  const history = await getRecentTopics();
+  const current = history.find((h) => h.title === currentTitle);
+  if (!current || current.embedding.length === 0) return [];
+
+  return history
+    // `date` is missing on history entries pushed before this field
+    // existed — skip those rather than link to /archive/undefined.
+    .filter((h) => h.title !== currentTitle && h.embedding.length > 0 && h.date)
+    .map((h) => ({ ...h, similarity: cosineSimilarity(current.embedding, h.embedding) }))
+    .sort((a, b) => b.similarity - a.similarity)
+    .slice(0, limit)
+    .map(({ title, category, date }) => ({ title, category, date }));
+}
+
+/**
+ * Regenerates `date`'s card unconditionally — used by the admin refresh
+ * action. Unlike getOrGenerateTopic, this always calls the model rather
+ * than serving a cached hit, since the whole point is a fresh one.
+ */
+export async function regenerateTopic(date: string): Promise<TopicRecord> {
+  return generateAndCache(date);
 }
 
 /**
@@ -140,7 +177,12 @@ export async function getOrGenerateTopic(date: string): Promise<TopicRecord> {
   }
 
   try {
-    return await generateAndCache(date);
+    const record = await generateAndCache(date);
+    await clearLastError();
+    return record;
+  } catch (err) {
+    await setLastError(err instanceof Error ? err.message : String(err));
+    throw err;
   } finally {
     await releaseGenerationLock(date);
   }

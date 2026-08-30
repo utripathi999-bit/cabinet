@@ -24,10 +24,19 @@ export interface GeneratedTopicDraft {
 }
 
 // What we remember about a past topic for duplicate detection: enough to
-// show the model an "avoid" list (title + category) and enough to check
-// semantic similarity against new drafts (embedding).
+// show the model an "avoid" list (title + category), enough to check
+// semantic similarity against new drafts (embedding), and enough to link
+// to it from "related topics" (date).
 export interface RecentTopic {
   title: string;
   category: string;
   embedding: number[];
+  date: string;
+}
+
+// Recorded when a generation attempt fails outright, so the admin page can
+// show it without needing an external alert service.
+export interface LastError {
+  message: string;
+  at: string; // ISO timestamp
 }
