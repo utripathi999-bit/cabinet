@@ -132,12 +132,6 @@ a {
 /* Text needs to sit on top of a busy, colorful photo now, not the flat
    canvas color — swap the palette for the on-image variants used
    throughout this pane. */
-.pane-topic--image .card-header,
-.pane-topic--image .call-number,
-.pane-topic--image .card-count {
-  color: rgba(251, 251, 250, 0.82);
-}
-
 .pane-topic--image .category-tag {
   color: #171717;
   background: #f0c785;
@@ -165,17 +159,8 @@ a {
 
 .card-header {
   display: flex;
-  justify-content: space-between;
-  align-items: baseline;
-  font-family: var(--font-label);
-  font-size: 0.72rem;
-  letter-spacing: 0.04em;
-  color: var(--text-tertiary);
+  justify-content: flex-end;
   margin-bottom: clamp(20px, 3vw, 32px);
-}
-
-.call-number {
-  color: var(--text-secondary);
 }
 
 .category-tag {

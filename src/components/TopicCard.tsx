@@ -25,10 +25,6 @@ export function TopicCard({
           style={paneStyle}
         >
           <div className="card-header">
-            <span>
-              <span className="call-number">{topic.callNumber}</span>
-              <span className="card-count"> · Card No. {topic.cardNumber}</span>
-            </span>
             <ShareButton title={topic.title} />
           </div>
           <span className="category-tag">{topic.category}</span>

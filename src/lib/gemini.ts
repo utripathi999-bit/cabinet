@@ -29,7 +29,7 @@ Rules:
 - Pick something specific and researchable, not a vague umbrella ("The Byzantine Iconoclasm" not "Byzantine History"; "The Halting Problem" not "Computer Science Theory").
 - Never repeat or closely rephrase anything in the "avoid" list you're given — including the same topic in different words.
 - A shared broad domain is NOT itself a duplicate. Distinct subjects, or genuine subtopics/deep-dives within a domain already touched on, are welcome even when related — e.g. Typography, the Printing Press, Calligraphy, and UI Design are four acceptable topics despite the overlap between them.
-- Rotate across the seven domains — don't cluster on the same one two days running.
+- Rotate across the seven domains — don't cluster on the same one two days running. History specifically should come up less often than the other six — treat it as roughly half as frequent, not an equal seventh.
 - No "X and Y" titles, ever — see the title field's rule above.
 - Write the description in plain, warm, direct prose. No listicle language, no "In this fascinating topic...", no rhetorical questions as a crutch.
 - Return raw JSON only.`;
