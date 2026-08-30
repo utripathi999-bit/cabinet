@@ -1,6 +1,7 @@
 import { isValidAdminKey } from "@/lib/adminAuth";
 import { getCachedTopic, getLastError } from "@/lib/storage";
 import { todayIST, formatDisplayDate } from "@/lib/date";
+import { AdminRefreshForm } from "@/components/AdminRefreshForm";
 
 export const dynamic = "force-dynamic";
 
@@ -77,17 +78,7 @@ export default async function AdminPage({
 
         <hr className="divider" />
 
-        <form action="/api/admin/refresh" method="POST" className="admin-form">
-          <input type="hidden" name="key" value={key} />
-          <button type="submit" className="admin-button">
-            Regenerate today&rsquo;s card
-          </button>
-          <p className="admin-meta" style={{ marginTop: 10 }}>
-            Calls Gemini and YouTube again right now, overwriting today&rsquo;s
-            cached card. Costs one real generation — use it when you actually
-            want a new one, not to browse.
-          </p>
-        </form>
+        <AdminRefreshForm adminKey={key} />
       </div>
     </main>
   );
