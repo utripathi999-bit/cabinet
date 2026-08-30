@@ -21,6 +21,7 @@ export interface GeneratedTopicDraft {
   category: string;
   description: string;
   searchQuery: string;
+  imagePrompt: string;
 }
 
 // What we remember about a past topic for duplicate detection: enough to

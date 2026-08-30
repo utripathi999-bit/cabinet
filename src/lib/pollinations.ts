@@ -7,21 +7,20 @@ import type { GeneratedImage } from "./types";
 const POLLINATIONS_BASE = "https://image.pollinations.ai/prompt";
 
 /**
- * Generates a colorful, cartoonish illustration for a topic. Best-effort:
- * callers should treat a null return as "no image today" rather than
- * failing the whole card — this is a nice-to-have on top of the text.
+ * Generates a colorful, cartoonish illustration from a concrete scene
+ * description (Gemini writes this, not us — see GeneratedTopicDraft.
+ * imagePrompt — because asking an image model to "represent a concept"
+ * abstractly reliably produces garbage; it needs an actual scene with
+ * physical objects and action). Best-effort: callers should treat a null
+ * return as "no image today" rather than failing the whole card.
  */
 export async function generateTopicImage(
-  title: string,
-  category: string
+  prompt: string
 ): Promise<GeneratedImage | null> {
-  const prompt = `Colorful playful cartoon-style flat editorial illustration representing the topic "${title}" (${category}). Bold vibrant shapes and colors, whimsical modern magazine spot-illustration style. No text, no words, no letters, no numbers, no logos anywhere in the image — pure illustration only, no photorealism.`;
-
   const apiKey = process.env.POLLINATIONS_API_KEY;
   const params = new URLSearchParams({
     width: "1200",
     height: "630",
-    model: "flux",
     // A fresh image each time a card regenerates, rather than the same
     // cached-by-Pollinations image for repeated prompts. Capped to a
     // signed 32-bit int — Date.now() alone is too large and gets

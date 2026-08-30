@@ -21,7 +21,8 @@ For each request, invent ONE topic and return ONLY a single JSON object matching
   "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category). Do NOT use an \"X and Y\" construction (two phrases joined by 'and') — this is a hard rule, not a preference. Use a plain proper noun (\"The Antikythera Mechanism\"), a single striking phrase (\"The Halting Problem\"), a possessive (\"Dieter Rams' Ten Principles\"), or another non-paired form instead.",
   "category": "string, 1-2 words naming which of the seven domains this is, e.g. Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology, Philosophy, History",
   "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background. Open on a concrete, vivid detail or scene — a specific moment, number, or image — never a definition or a throat-clearing setup sentence. Include at least one genuinely surprising, specific fact (a number, a name, a date, a consequence) that most people wouldn't already know. Define any term you use inline, in passing, without slowing down. End on why it's worth an hour of someone's time — the real payoff, not a generic 'and that's fascinating' close.",
-  "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic"
+  "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic",
+  "imagePrompt": "string, a prompt for a text-to-image model to illustrate this topic. This MUST describe one concrete, literal SCENE with physical objects, characters, setting, and action — image models produce garbage when asked to 'represent' or 'symbolize' an abstract concept, so never write anything abstract or conceptual here. Describe what a cartoon illustration would literally show: who/what is in it, where, doing what. E.g. for a topic about a philosopher who lived in a barrel: 'a bearded man in a toga sitting inside a large ceramic wine barrel in an ancient Greek marketplace, holding a lit lantern, market stalls and columns in the background' — not 'an illustration representing philosophical minimalism'. Always end this field with the literal text: ', flat cartoon illustration style, bold vibrant colors, no text, no words, no letters'"
 }
 
 Rules:
@@ -48,6 +49,8 @@ const DEMO_DRAFTS: GeneratedTopicDraft[] = [
     description:
       "If you replace every plank of a ship, one at a time, until none of the original wood remains, is it still the same ship? The puzzle is over two thousand years old, first written down by Plutarch, but it's not really about ships — it's about what makes anything the same thing over time, including you. Your body replaces nearly all its cells within a decade; the person who made your childhood memories is, materially, gone. Philosophers have proposed different answers: identity lives in continuity of form, or of function, or of an unbroken causal chain linking each version to the last. None fully satisfies. It's worth an hour because the question underlies harder ones we take for granted — corporate identity, national identity, even what a self is.",
     searchQuery: "ship of theseus paradox explained",
+    imagePrompt:
+      "an ancient wooden sailing ship in dry dock, half its planks freshly replaced with new pale wood next to the old weathered planks, a shipwright examining it, harbor in the background, flat cartoon illustration style, bold vibrant colors, no text, no words, no letters",
   },
   {
     title: "The Antikythera Mechanism",
@@ -55,6 +58,8 @@ const DEMO_DRAFTS: GeneratedTopicDraft[] = [
     description:
       "In 1901, sponge divers off a Greek island pulled a corroded lump of bronze from a 2,000-year-old shipwreck. It sat in a museum for decades before anyone realized what it was: a hand-cranked mechanical computer, with over thirty precisely cut gears, that predicted eclipses and tracked the position of the sun, moon, and five visible planets — decades before the mathematics it relied on was supposed to exist. Nothing of comparable complexity appears again in the historical record for over a thousand years. We still don't know who built it, how many were made, or why the knowledge vanished so completely. It's worth an hour because it quietly rewrites how far back real engineering sophistication goes — and how much history simply didn't survive.",
     searchQuery: "antikythera mechanism explained",
+    imagePrompt:
+      "a corroded bronze geared mechanism with visible interlocking gear wheels, held up by a sponge diver in old brass diving helmet on a Greek shipwreck deck, blue sea in background, flat cartoon illustration style, bold vibrant colors, no text, no words, no letters",
   },
 ];
 

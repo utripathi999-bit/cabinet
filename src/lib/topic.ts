@@ -109,7 +109,7 @@ async function generateAndCache(date: string): Promise<TopicRecord> {
   // concurrently rather than adding their latencies together.
   const [sources, image] = await Promise.all([
     fetchSources(draft.searchQuery),
-    generateTopicImage(draft.title, draft.category),
+    generateTopicImage(draft.imagePrompt),
   ]);
   const cardNumber = await nextCardNumber();
 
