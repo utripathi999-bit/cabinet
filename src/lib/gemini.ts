@@ -4,8 +4,12 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
 // Free-tier Gemini models — get a key at https://aistudio.google.com/apikey
 // (a separate key from the YouTube Data API one, but no card required).
-const GENERATION_MODEL = "gemini-2.5-flash";
-const EMBEDDING_MODEL = "text-embedding-004";
+// Google retires older model IDs for new API keys over time (this project
+// hit exactly that: gemini-2.5-flash and text-embedding-004 were both
+// retired for new keys after this was first written) — if either of these
+// starts failing, the error response names the current replacement model.
+const GENERATION_MODEL = "gemini-3.6-flash";
+const EMBEDDING_MODEL = "gemini-embedding-001";
 
 const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day, pulled from across the whole span of human knowledge: philosophy, history, science, technology, music, art, linguistics, mathematics, obscure historical events, design, biology, economics, anthropology — anything genuinely interesting, not just the popular-science greatest hits.
 
