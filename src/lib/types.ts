@@ -49,3 +49,13 @@ export interface GeneratedImage {
   base64: string;
   mimeType: string;
 }
+
+// One multiple-choice quiz question. correctIndex is included here — the
+// quiz has no server-side "submit" step to validate against, so the
+// client needs it to grade itself. Fine for a casual daily quiz with no
+// accounts or leaderboard riding on it.
+export interface QuizQuestion {
+  question: string;
+  options: string[]; // exactly 4
+  correctIndex: number; // 0-3
+}

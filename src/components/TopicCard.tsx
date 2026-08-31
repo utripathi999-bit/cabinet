@@ -59,8 +59,9 @@ export function TopicCard({
       </div>
 
       <p className="footer-meta">
-        {formatDisplayDate(topic.date)} · a new card is pulled every midnight
-        IST · <Link href="/archive">archive</Link>
+        {formatDisplayDate(topic.date)} ·{" "}
+        <Link href="/quiz">today&rsquo;s quiz</Link> ·{" "}
+        <Link href="/archive">archive</Link>
       </p>
     </>
   );

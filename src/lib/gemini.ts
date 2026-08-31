@@ -1,4 +1,4 @@
-import type { GeneratedTopicDraft } from "./types";
+import type { GeneratedTopicDraft, QuizQuestion } from "./types";
 
 const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 
@@ -166,4 +166,102 @@ export async function embedText(text: string): Promise<number[]> {
 
   const data = await response.json();
   return data.embedding?.values ?? [];
+}
+
+const QUIZ_SYSTEM_PROMPT = `You write daily quiz questions for "Cabinet," a site where the reader has just spent time researching one specific topic. Your job is a 5-question multiple-choice quiz on that exact topic, for someone who actually went and read/watched about it — not someone skimming a headline.
+
+Return ONLY a JSON array of exactly 5 objects, each matching:
+
+{
+  "question": "string — a specific, niche question about THIS topic. It must require genuine knowledge from having researched the topic, not be answerable from common sense, elimination, or a one-line summary. Never ask something so obvious the title alone gives it away.",
+  "options": ["exactly 4 strings — one correct answer and three plausible, non-silly wrong answers, similar in length and specificity so the correct one doesn't stand out"],
+  "correctIndex": "integer 0-3, the index of the correct option in the options array"
+}
+
+Rules:
+- All 5 questions must be genuinely about the specific topic given — not generic knowledge from its broad domain.
+- Vary what each question tests (a date/number, a name, a mechanism, a consequence, a specific claim) rather than five variations on the same fact.
+- Wrong options should be believable to someone who half-remembers the topic, not obviously fake.
+- Return raw JSON only, no markdown fences, no commentary.`;
+
+/**
+ * Generates a 5-question quiz for a topic. Best-effort, like the
+ * illustration — a failed or malformed quiz shouldn't block the topic
+ * itself from being cached, so callers treat null as "no quiz today."
+ */
+export async function generateQuiz(
+  title: string,
+  category: string,
+  description: string
+): Promise<QuizQuestion[] | null> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) return null;
+
+  try {
+    const response = await fetch(
+      `${GEMINI_API_BASE}/models/${GENERATION_MODEL}:generateContent?key=${apiKey}`,
+      {
+        method: "POST",
+        headers: { "content-type": "application/json" },
+        body: JSON.stringify({
+          systemInstruction: { parts: [{ text: QUIZ_SYSTEM_PROMPT }] },
+          contents: [
+            {
+              role: "user",
+              parts: [
+                {
+                  text: `Topic: "${title}" (${category})\n\nWhat the reader already read: ${description}\n\nWrite the 5-question quiz now — go deeper than that summary.`,
+                },
+              ],
+            },
+          ],
+          generationConfig: {
+            temperature: 1,
+            maxOutputTokens: 2048,
+            responseMimeType: "application/json",
+            thinkingConfig: { thinkingLevel: "low" },
+          },
+        }),
+      }
+    );
+
+    if (!response.ok) {
+      const body = await response.text().catch(() => "");
+      console.warn(`[cabinet] Quiz generation failed: ${response.status} ${body.slice(0, 400)}`);
+      return null;
+    }
+
+    const data = await response.json();
+    const text: string | undefined = data.candidates?.[0]?.content?.parts?.[0]?.text;
+    if (!text) {
+      console.warn("[cabinet] Quiz generation returned no text content");
+      return null;
+    }
+
+    const parsed = JSON.parse(stripCodeFence(text));
+    if (!Array.isArray(parsed) || parsed.length !== 5) {
+      console.warn("[cabinet] Quiz generation returned the wrong shape", parsed);
+      return null;
+    }
+
+    const valid = parsed.every(
+      (q) =>
+        typeof q.question === "string" &&
+        Array.isArray(q.options) &&
+        q.options.length === 4 &&
+        q.options.every((o: unknown) => typeof o === "string") &&
+        Number.isInteger(q.correctIndex) &&
+        q.correctIndex >= 0 &&
+        q.correctIndex <= 3
+    );
+    if (!valid) {
+      console.warn("[cabinet] Quiz generation returned malformed questions", parsed);
+      return null;
+    }
+
+    return parsed as QuizQuestion[];
+  } catch (err) {
+    console.warn("[cabinet] Quiz generation threw", err);
+    return null;
+  }
 }

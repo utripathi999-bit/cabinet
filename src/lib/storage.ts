@@ -1,5 +1,5 @@
 import { Redis } from "@upstash/redis";
-import type { GeneratedImage, LastError, RecentTopic, TopicRecord } from "./types";
+import type { GeneratedImage, LastError, QuizQuestion, RecentTopic, TopicRecord } from "./types";
 
 const HISTORY_KEY = "cabinet:history"; // list of recent topics (title, category, embedding, date), newest first
 const HISTORY_MAX = 500; // how many past topics we remember, to check for repeats
@@ -16,6 +16,10 @@ function lockKey(date: string) {
 
 function imageKey(date: string) {
   return `cabinet:image:${date}`;
+}
+
+function quizKey(date: string) {
+  return `cabinet:quiz:${date}`;
 }
 
 // Vercel's Upstash Marketplace integration injects these automatically once
@@ -37,6 +41,7 @@ if (!redis) {
 const mem = {
   topics: new Map<string, TopicRecord>(),
   images: new Map<string, GeneratedImage>(),
+  quizzes: new Map<string, QuizQuestion[]>(),
   history: [] as RecentTopic[],
   counter: 0,
   locks: new Set<string>(),
@@ -77,6 +82,25 @@ export async function cacheTopicImage(date: string, image: GeneratedImage): Prom
   }
   // Same 45-day retention as the topic text itself.
   await redis.set(imageKey(date), image, { ex: 60 * 60 * 24 * 45 });
+}
+
+/**
+ * The day's quiz, if generation succeeded. Same rationale as the image:
+ * a separate key, not part of TopicRecord, so /api/topic stays small and
+ * doesn't hand out the answer key in the same response the quiz page
+ * reads from.
+ */
+export async function getQuiz(date: string): Promise<QuizQuestion[] | null> {
+  if (!redis) return mem.quizzes.get(quizKey(date)) ?? null;
+  return (await redis.get<QuizQuestion[]>(quizKey(date))) ?? null;
+}
+
+export async function cacheQuiz(date: string, quiz: QuizQuestion[]): Promise<void> {
+  if (!redis) {
+    mem.quizzes.set(quizKey(date), quiz);
+    return;
+  }
+  await redis.set(quizKey(date), quiz, { ex: 60 * 60 * 24 * 45 });
 }
 
 // @upstash/redis auto-serializes/deserializes non-string values, so

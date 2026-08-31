@@ -1,8 +1,9 @@
-import { generateTopicDraft, embedText, type AvoidEntry } from "./gemini";
+import { generateTopicDraft, embedText, generateQuiz, type AvoidEntry } from "./gemini";
 import { generateTopicImage } from "./pollinations";
 import { fetchSources } from "./youtube";
 import {
   acquireGenerationLock,
+  cacheQuiz,
   cacheTopic,
   cacheTopicImage,
   clearLastError,
@@ -105,11 +106,12 @@ async function draftDistinctTopic(
 async function generateAndCache(date: string): Promise<TopicRecord> {
   const history = await getRecentTopics();
   const { draft, embedding } = await draftDistinctTopic(history);
-  // Sources and the illustration are independent of each other — run them
-  // concurrently rather than adding their latencies together.
-  const [sources, image] = await Promise.all([
+  // Sources, illustration, and quiz are independent of each other — run
+  // them concurrently rather than adding their latencies together.
+  const [sources, image, quiz] = await Promise.all([
     fetchSources(draft.searchQuery),
     generateTopicImage(draft.imagePrompt),
+    generateQuiz(draft.title, draft.category, draft.description),
   ]);
   const cardNumber = await nextCardNumber();
 
@@ -126,10 +128,11 @@ async function generateAndCache(date: string): Promise<TopicRecord> {
 
   await cacheTopic(record);
   await pushRecentTopic({ title: draft.title, category: draft.category, embedding, date });
-  // Illustration is a nice-to-have, not part of the core card — a failed
-  // image generation (already logged inside generateTopicImage) shouldn't
-  // stop the actual topic from being cached.
+  // Illustration and quiz are nice-to-haves, not part of the core card —
+  // a failure in either (already logged inside its own function)
+  // shouldn't stop the actual topic from being cached.
   if (image) await cacheTopicImage(date, image);
+  if (quiz) await cacheQuiz(date, quiz);
   return record;
 }
 
