@@ -1,3 +1,4 @@
+import Link from "next/link";
 import { getCachedTopic, getQuiz } from "@/lib/storage";
 import { todayIST } from "@/lib/date";
 import { QuizGame } from "@/components/QuizGame";
@@ -20,12 +21,14 @@ export default async function QuizPage() {
         <p className="wordmark">
           <a href="/">Cabinet</a>
         </p>
-        <p className="tagline">
-          <a href="/">back to today&rsquo;s card</a>
-        </p>
+        <p className="tagline">today&rsquo;s quiz</p>
       </div>
 
       <div className="quiz-body">
+        <Link href="/" className="cta-button cta-button--secondary">
+          ← Back to today&rsquo;s card
+        </Link>
+
         {!topic ? (
           <div className="state-panel">
             <p className="error-title">No card yet today</p>

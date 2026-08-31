@@ -55,13 +55,15 @@ export function TopicCard({
               </p>
             )}
           </div>
+
+          <Link href="/quiz" className="cta-button">
+            Take today&rsquo;s quiz
+          </Link>
         </section>
       </div>
 
       <p className="footer-meta">
-        {formatDisplayDate(topic.date)} ·{" "}
-        <Link href="/quiz">today&rsquo;s quiz</Link> ·{" "}
-        <Link href="/archive">archive</Link>
+        {formatDisplayDate(topic.date)} · <Link href="/archive">archive</Link>
       </p>
     </>
   );
