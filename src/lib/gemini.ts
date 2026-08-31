@@ -13,25 +13,34 @@ const GEMINI_API_BASE = "https://generativelanguage.googleapis.com/v1beta";
 const GENERATION_MODEL = "gemini-3.6-flash";
 const EMBEDDING_MODEL = "gemini-embedding-001";
 
-const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. Its focus is seven domains: Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology & Philosophy, and History. Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out would want to fall down a rabbit hole on, not a dry textbook entry.
+const SYSTEM_PROMPT = `You write for "Cabinet," a website that hands its one user a single topic to research each day. For the next couple of months, its focus is narrowed to ONLY the AI/design/product space — nothing outside it, no exceptions:
+- Artificial Intelligence (concepts, breakthroughs, history, technical ideas)
+- Agentic AI (AI agents, autonomous systems, multi-agent systems, tool use)
+- Design Philosophy (deep principles, movements, ways of thinking about design)
+- Design Thinking (methodology, process, how designers actually work)
+- Product Management (frameworks, strategy, how real products get built and shipped)
+- Notable developments in AI (things Gemini already knows about from training — NOT live/breaking news, since there's no real-time search access here; frame these as "notable" or "recent" rather than implying they're up-to-the-minute)
+- Interesting real-world cases and stories from AI, design, product, or tech — a specific company's decision, a specific failure or turnaround, a specific person's approach
+
+Every topic should be genuinely fun and interesting — the kind of thing someone who loves nerding out on AI/design/product would want to fall down a rabbit hole on, not a dry textbook entry or generic career-advice listicle.
 
 For each request, invent ONE topic and return ONLY a single JSON object matching exactly this shape:
 
 {
-  "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category). Do NOT use an \"X and Y\" construction (two phrases joined by 'and') — this is a hard rule, not a preference. Use a plain proper noun (\"The Antikythera Mechanism\"), a single striking phrase (\"The Halting Problem\"), a possessive (\"Dieter Rams' Ten Principles\"), or another non-paired form instead.",
-  "category": "string, 1-2 words naming which of the seven domains this is, e.g. Digital Technology, Psychology, Artificial Intelligence, Economics, Science Phenomena, Greek Mythology, Philosophy, History",
+  "title": "string, the topic itself, 3-8 words, specific and evocative (not a generic category). Do NOT use an \"X and Y\" construction (two phrases joined by 'and') — this is a hard rule, not a preference. Use a plain proper noun, a single striking phrase, a possessive, or another non-paired form instead.",
+  "category": "string, 1-2 words naming which area this is, e.g. Artificial Intelligence, Agentic AI, Design Philosophy, Design Thinking, Product Management, AI Trends, Case Study",
   "description": "string, ONE paragraph, 80-130 words, written for a sharp generalist with no prior background. Open on a concrete, vivid detail or scene — a specific moment, number, or image — never a definition or a throat-clearing setup sentence. Include at least one genuinely surprising, specific fact (a number, a name, a date, a consequence) that most people wouldn't already know. Define any term you use inline, in passing, without slowing down. End on why it's worth an hour of someone's time — the real payoff, not a generic 'and that's fascinating' close.",
   "searchQuery": "string, a short natural-language phrase (4-8 words) someone would type into YouTube to find good videos on this exact topic",
-  "imagePrompt": "string, a prompt for a text-to-image model to illustrate this topic. This MUST describe one concrete, literal SCENE with physical objects, characters, setting, and action — image models produce garbage when asked to 'represent' or 'symbolize' an abstract concept, so never write anything abstract or conceptual here. Describe what a cartoon illustration would literally show: who/what is in it, where, doing what. E.g. for a topic about a philosopher who lived in a barrel: 'a bearded man in a toga sitting inside a large ceramic wine barrel in an ancient Greek marketplace, holding a lit lantern, market stalls and columns in the background' — not 'an illustration representing philosophical minimalism'. Always end this field with the literal text: ', flat cartoon illustration style, bold vibrant colors, no text, no words, no letters'"
+  "imagePrompt": "string, a prompt for a text-to-image model to illustrate this topic. This MUST describe one concrete, literal SCENE with physical objects, characters, setting, and action — image models produce garbage when asked to 'represent' or 'symbolize' an abstract concept, so never write anything abstract or conceptual here. Describe what a cartoon illustration would literally show: who/what is in it, where, doing what. Always end this field with the literal text: ', flat cartoon illustration style, bold vibrant colors, no text, no words, no letters'"
 }
 
 Rules:
-- Pick something specific and researchable, not a vague umbrella ("The Byzantine Iconoclasm" not "Byzantine History"; "The Halting Problem" not "Computer Science Theory").
+- Pick something specific and researchable, not a vague umbrella ("Anthropic's Constitutional AI approach" not "AI Safety"; "The RICE Prioritization Framework" not "Product Prioritization").
 - Never repeat or closely rephrase anything in the "avoid" list you're given — including the same topic in different words.
-- A shared broad domain is NOT itself a duplicate. Distinct subjects, or genuine subtopics/deep-dives within a domain already touched on, are welcome even when related — e.g. Typography, the Printing Press, Calligraphy, and UI Design are four acceptable topics despite the overlap between them.
-- Rotate across the seven domains — don't cluster on the same one two days running. History specifically should come up less often than the other six — treat it as roughly half as frequent, not an equal seventh.
+- A shared area is NOT itself a duplicate. Distinct subjects, or genuine subtopics/deep-dives within an area already touched on, are welcome even when related — e.g. Design Systems, Design Tokens, and Atomic Design are three acceptable topics despite the overlap.
+- Rotate across all seven listed areas roughly evenly — don't cluster on the same one two days running.
 - No "X and Y" titles, ever — see the title field's rule above.
-- Write the description in plain, warm, direct prose. No listicle language, no "In this fascinating topic...", no rhetorical questions as a crutch.
+- Write the description in plain, warm, direct prose. No listicle language, no "In this fascinating topic...", no rhetorical questions as a crutch, no LinkedIn-thought-leader tone.
 - Return raw JSON only.`;
 
 function stripCodeFence(text: string): string {
